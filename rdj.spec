@@ -69,7 +69,7 @@ rdj.
 
 %prep
 %setup -q
-%patch0 -p1 
+%patch0 -p1
 
 
 %build
@@ -111,14 +111,3 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 %{_pixmapsdir}/*
 %{_applnkdir}/Multimedia/*
-
-#%define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
-%changelog
-* %{date} PLD Team <feedback@pld.org.pl>
-All persons listed below can be reached at <cvs_login>@pld.org.pl
-
-$Log: rdj.spec,v $
-Revision 1.7  2002-04-22 13:16:43  misto
- - updated to rdj-0.3.2
- - changed to use patches for gettext, automake and autoconf support
- - added several PO files
