@@ -1,4 +1,5 @@
-Summary:	Yet another movie player for linux
+Summary:	Radio controller for GTK+
+Summary(pl):	Kontroler radia dla GTK+
 Name:		rdj
 Version:	0.3.0
 Release:	1
@@ -6,26 +7,38 @@ License:	GPL
 Group:		X11/Applications/Multimedia
 Group(de):	X11/Applikationen/Multimedia
 Group(pl):	X11/Aplikacje/Multimedia
-Source0:	http://mimms.sf.net/%{name}-%{version}.tgz
+Source0:	http://mimms.sourceforge.net/rdj/%{name}-%{version}.tgz
 Patch0:		%{name}-X11R6_path.patch
-URL:		http://mimms.sf.net/
+URL:		http://mimms.sourceforge.net/
+BuildRequires:	XFree86-devel
+BuildRequires:	gnome-libs-devel
+BuildRequires:	gtk+-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define _prefix /usr/X11R6
+%define		_prefix	/usr/X11R6
+%define		_mandir	%{_prefix}/man
 
 %description
-Premiere gtk+ radio controller. If you think it's rather small, then
-you got author's point. This radio program is designed for the
-video4linux driver and the license is GNU GPL.
+rdj is a gtk+ radio interface for bttv video devices with radio
+tuners. Scanning, station editing, using devices radio0-3, setting a
+default station, and having unlimited stations are fully supported.
+Also, you can start your favorite television app and mixer from it.
+
+%description -l pl
+rdj to interfejs do radia napisany w gtk+ dla urz±dzeñ wideo bttv z
+tunerami radiowymi. Skanowanie, edycja stacji, u¿ywanie urz±dzeñ
+radio0-3, ustawianie domy¶lnej stacji oraz nielimitowana ilo¶æ stacji
+to zalety rdj. Ponadto mo¿esz uruchamiaæ dowolny program do ogl±dania
+telewizji czy s³uchania radia z rdj.
 
 %prep
 %setup -q
 %patch0 -p1
 
 %build
-cd src
-CFLAGS="%{rpmcflags}"
-%{__make} rdj
+CFLAGS="%{rpmcflags}"; export CFLAGS
+CC="%{__cc}"; export CC
+%{__make} -C src rdj
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -50,4 +63,4 @@ rm -rf $RPM_BUILD_ROOT
 %{_applnkdir}/Multimedia/rdj.desktop
 %{_datadir}/%{name}
 %{_pixmapsdir}/*
-%{_mandir}/man1/*
+%{_mandir}/man?/*
