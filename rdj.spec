@@ -13,7 +13,9 @@ License:	GPL
 Group:		X11/Applications/Multimedia
 URL:		http://mimms.sourceforge.net/
 Source0:	http://mimms.sourceforge.net/rdj/%{name}-%{version}.tgz
+# Source0-md5:	51d5b3d37d4ecd4db563d501f0774ca7
 Source1:	%{name}-icons-png.tgz
+# Source1-md5:	87f629f20233f5bf610ab4db1672cadc
 Patch0:		%{name}-gettext-and-automake-support.patch
 BuildRequires:	automake
 BuildRequires:	autoconf
