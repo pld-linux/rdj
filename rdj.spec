@@ -1,20 +1,29 @@
-Summary:	Radio controller for GTK+
-Summary(pl):	Kontroler radia dla GTK+
+Summary:	gtk+ radio program for Video4Linux users
+Summary(pl):	aplikacja radiowa pod gtk+ (Video4Linux)
+Summary(cs):	gtk+ radio program pro zaøízení podporující Video4Linux rozhraní
+Summary(de):	gtk+ Radio-Tuner für Video4Linux-Benutzer
+Summary(nl):	gtk+ radioprogramma voor gebruikers van Video4Linux
+Summary(it):	gtk+ programma radio per utenti di Video4Linux
+Summary(ru):	gtk+ ĞÒÏÇÒÁÍÍÁ ÄÌÑ ÒÁÂÏÔÙ Ó ÒÁÄÉÏ-ÔÀÎÅÒÏÍ Ó ÉÓĞÏÌØÚÏ×ÁÎÉÅÍ ÉÎÔÅÒÆÅÊÓÁ Video4Linux
 Name:		rdj
-Version:	0.3.0
+Version:	0.3.2
 Release:	1
+Vendor:		David Mimms, Jr. <tha_d@hotmail.com>
 License:	GPL
 Group:		X11/Applications/Multimedia
-Source0:	http://mimms.sourceforge.net/rdj/%{name}-%{version}.tgz
-Patch0:		%{name}-X11R6_path.patch
 URL:		http://mimms.sourceforge.net/
-BuildRequires:	XFree86-devel
-BuildRequires:	gnome-libs-devel
+Source0:	http://mimms.sourceforge.net/rdj/%{name}-%{version}.tgz
+Source1:	%{name}-icons-png.tgz
+Patch0:		%{name}-gettext-and-automake-support.patch
+BuildRequires:	automake
+BuildRequires:	autoconf
 BuildRequires:	gtk+-devel
+BuildRequires:	gnome-libs-devel
+
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_prefix	/usr/X11R6
-%define		_mandir	%{_prefix}/man
+%define         _prefix         /usr/X11R6
+%define         _mandir         %{_prefix}/man
 
 %description
 rdj is a gtk+ radio interface for bttv video devices with radio
@@ -23,42 +32,93 @@ default station, and having unlimited stations are fully supported.
 Also, you can start your favorite television app and mixer from it.
 
 %description -l pl
-rdj to interfejs do radia napisany w gtk+ dla urz±dzeñ wideo bttv z
-tunerami radiowymi. Skanowanie, edycja stacji, u¿ywanie urz±dzeñ
-radio0-3, ustawianie domy¶lnej stacji oraz nielimitowana ilo¶æ stacji
-to zalety rdj. Ponadto mo¿esz uruchamiaæ dowolny program do ogl±dania
-telewizji czy s³uchania radia z rdj.
+rdj jest interfejsem radiowym pod bttv u¿ywaj±cym gtk+. Program
+umo¿liwia skanowanie, edycjê listy stacji, ustawianie stacji
+domy¶lnej, u¿ywanie urz±dzeñ radio0-3. Korzystaj±c z rdj mo¿na równie¿
+uruchomiæ swoj± ulubion± aplikacjê do ogl±dania tv czy audio mikser.
+
+%description -l cs
+rdj je gtk+ rozhraní pro bttv zaøízení s radiovım tunerem. Pou¾ívá
+zaøízení radio0-3. Umo¾òuje hledat a upravovat seznam dostupnıch
+stanic, nastavení defaultní stanice. Umo¾òujue také spou¹tìní
+oblíbeného tv programu a mixeru.
+
+%description -l de
+rdj ist ein GTK+ Radio-Tuner für von BTTV unterstützte
+Radio/TV-Karten. Sendersuchlauf, Editieren von Sendern, Verwendung der
+Geräte radio0-3, Angabe eines Standardsenders und eine unbegrenzte
+Anzahl von voreingestellten Sendern werden voll unterstützt. Sie
+können außerdem eine TV-Software sowie einen Audiomixer Ihrer Wahl
+starten.
+
+%description -l nl
+rdj is een gtk+ radio-interface voor bttv video apparaten met
+radiotuners. Scannen, stations bewerken, gebruik van de apparaten
+radio0-3, een default station instellen, en het instellen van een
+onbegrensd aantal stations wordt volledig ondersteund. U kunt ook uw
+favoriete televisieprogramma of mixer starten vanuit rdj.
+
+%description -l ru
+rdj --- ÜÔÏ gtk+ ĞÒÏÇÒÁÍÍÁ ÄÌÑ ÕÓÔÒÏÊÓÔ× ÎÁ ŞÉĞÁÈ bttv, ÏÓÎÁİÅÎÎÙÈ
+ÒÁÄÉÏ-ÔÀÎÅÒÏÍ. ïÓÏÂÅÎÎÏÓÔÉ: ÓËÁÎÉÒÏ×ÁÎÉÅ ÄÉÁĞÁÚÏÎÁ, ÎÅÏÇÒÁÎÉŞÅÎÎÙÊ
+ÒÅÄÁËÔÉÒÕÅÍÙÊ ÓĞÉÓÏË ÓÔÁÎÃÉÊ, ÉÓĞÏÌØÚÏ×ÁÎÉÅ ÎÅÓËÏÌØËÉÈ ÕÓÔÒÏÊÓÔ×
+(radio0-3), ÚÁÄÁÎÉÅ ÓÔÁÎÃÉÉ, ĞÒÏÓÌÕÛÉ×ÁÅÍÏÊ ĞÏ ÕÍÏÌŞÁÎÉÀ. ôÁËÖÅ ÷Ù
+ÍÏÖÅÔÅ ÚÁĞÕÓËÁÔØ ÷ÁÛÕ ÌÀÂÉÍÕÀ ĞÒÏÇÒÁÍÍÕ ÄÌÑ ĞÒÏÓÍÏÔÒÁ ô÷ É ÍÉËÛÅÒ ÉÚ
+rdj.
+
 
 %prep
 %setup -q
-%patch0 -p1
+%patch0 -p1 
+
 
 %build
-CFLAGS="%{rpmcflags}"; export CFLAGS
-CC="%{__cc}"; export CC
-%{__make} -C src rdj
+gettextize --copy --force
+aclocal
+autoconf
+automake -a -c
+
+%configure
+%{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_datadir}/%{name}/xpm,%{_bindir},%{_mandir}/man1} \
-		$RPM_BUILD_ROOT{%{_applnkdir}/Multimedia,%{_pixmapsdir}}
+%{__make} install \
+        DESTDIR=$RPM_BUILD_ROOT \
+	desktopdir=%{_applnkdir}/Multimedia
 
-install src/{rdj,rdj_scan,rdj_term,fscan} $RPM_BUILD_ROOT%{_bindir}
-install rdj.desktop $RPM_BUILD_ROOT%{_applnkdir}/Multimedia
-install rdj_icon.xpm $RPM_BUILD_ROOT%{_pixmapsdir}
-install rdj.1 $RPM_BUILD_ROOT%{_mandir}/man1
-install xpm/* $RPM_BUILD_ROOT%{_datadir}/%{name}/xpm
+install -d $RPM_BUILD_ROOT%{_pixmapsdir}
 
-gzip -9nf KNOWN_BUGS README
+tar zxvf %{SOURCE1}
+install *.png $RPM_BUILD_ROOT%{_pixmapsdir}
+
+gzip -9nf README ChangeLog COPYING KNOWN_BUGS example.rdj
+
+%find_lang %{name} --with-gnome --all-name
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
+
+%files -f %{name}.lang
 %defattr(644,root,root,755)
 %doc *.gz
+
 %attr(755,root,root) %{_bindir}/*
-%{_applnkdir}/Multimedia/rdj.desktop
+
 %{_datadir}/%{name}
+%{_mandir}/man1/*
 %{_pixmapsdir}/*
-%{_mandir}/man?/*
+%{_applnkdir}/Multimedia/*
+
+#%define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
+%changelog
+* %{date} PLD Team <feedback@pld.org.pl>
+All persons listed below can be reached at <cvs_login>@pld.org.pl
+
+$Log: rdj.spec,v $
+Revision 1.7  2002-04-22 13:16:43  misto
+ - updated to rdj-0.3.2
+ - changed to use patches for gettext, automake and autoconf support
+ - added several PO files
