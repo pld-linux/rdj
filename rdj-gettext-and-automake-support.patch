@@ -1,0 +1,2225 @@
+diff -u -N -r rdj-0.3.2/AUTHORS rdj-0.3.2.patch/AUTHORS
+--- rdj-0.3.2/AUTHORS	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/AUTHORS	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1 @@
++
+diff -u -N -r rdj-0.3.2/Makefile.am rdj-0.3.2.patch/Makefile.am
+--- rdj-0.3.2/Makefile.am	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/Makefile.am	Tue Apr  2 19:15:18 2002
+@@ -0,0 +1,15 @@
++SUBDIRS=intl po src
++
++man1_MANS=rdj.1
++
++rdj_icons_DATA= xpm/exit.xpm xpm/mixer.xpm xpm/mute_off.xpm \
++	xpm/mute_on.xpm xpm/prefs.xpm xpm/tv_on.xpm xpm/tv.xpm 
++rdj_iconsdir=$(pkgdatadir)/xpm
++
++rdj_abouticon_DATA= rdj_icon.xpm
++rdj_abouticondir=$(pkgdatadir)
++
++desktop_DATA=rdj.desktop
++desktopdir=
++
++EXTRA_DISTS= $(rdj_abouticon_DATA) $(rdj_icons_DATA) $(desktop_DATA)
+diff -u -N -r rdj-0.3.2/Makefile.am~ rdj-0.3.2.patch/Makefile.am~
+--- rdj-0.3.2/Makefile.am~	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/Makefile.am~	Tue Apr  2 19:14:39 2002
+@@ -0,0 +1,15 @@
++SUBDIRS=intl po src
++
++man1_MANS=rdj.1
++
++rdj_icons_DATA= xpm/exit.xpm xpm/mixer.xpm xpm/mute_off.xpm \
++	xpm/mute_on.xpm xpm/prefs.xpm xpm/tv_on.xpm xpm/tv.xpm 
++rdj_iconsdir=$(pkgdatadir)/xpm
++
++rdj_abouticon_DATA= rdj_icon.xpm
++rdj_abouticondir=$(pkgdatadir)
++
++rdj_desktop_DATA=rdj.desktop
++rdj_desktopdir=$(_applnkdir)
++
++EXTRA_DISTS= $(rdj_abouticon_DATA) $(rdj_icons_DATA) $(rdj_desktop_DATA)
+diff -u -N -r rdj-0.3.2/NEWS rdj-0.3.2.patch/NEWS
+--- rdj-0.3.2/NEWS	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/NEWS	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1 @@
++
+diff -u -N -r rdj-0.3.2/configure.in rdj-0.3.2.patch/configure.in
+--- rdj-0.3.2/configure.in	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/configure.in	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,51 @@
++# Process this file with autoconf to produce a configure script.
++AC_INIT(src)
++AM_INIT_AUTOMAKE(rdj, 0.3.2)
++
++# Checks for programs.
++AC_PROG_CXX
++AC_PROG_CC
++AC_PROG_INSTALL
++
++
++# Checks for header files.
++AC_HEADER_STDC
++AC_HEADER_SYS_WAIT
++AC_CHECK_HEADERS([errno.h fcntl.h locale.h stdlib.h string.h sys/ioctl.h unistd.h])
++
++# Checks for typedefs, structures, and compiler characteristics.
++AC_C_CONST
++
++AC_CHECK_PROG(GTK_CFLAGS, gtk-config, `gtk-config --cflags`,,,)
++AC_CHECK_PROG(GTK_LIBS, gtk-config, `gtk-config --libs`,,,)
++
++AC_CHECK_PROG(GNOME_CFLAGS, gnome-config, `gnome-config --cflags gnomeui`,,,)
++AC_CHECK_PROG(GNOME_LIBS, gnome-config, `gnome-config --libs gnomeui`,,,)
++
++
++# saving cflags copy, so all configure tests won't use them (faster)
++CFLAGS_c=$CFLAGS
++LIBS_c=$LIBS
++CFLAGS="$GTK_CFLAGS $GNOME_CFLAGS"
++LIBS="$GTK_LIBS $GNOME_LIBS"
++
++AC_CHECK_LIB(gtk,gtk_init,,AC_MSG_ERROR([***  gtk+ not found  ***]))
++AC_CHECK_LIB(gnome,gnome_color_picker_new,,AC_MSG_ERROR([*** gnome-libs not found ***]))
++
++CFLAGS=$CFLAGS_c
++LIBS=$LIBS_c
++
++# gettext
++ALL_LINGUAS="cs de es it nl ru tr"
++AM_GNU_GETTEXT
++
++# Checks for library functions.
++AC_PROG_GCC_TRADITIONAL
++AC_FUNC_MALLOC
++AC_TYPE_SIGNAL
++AC_CHECK_FUNCS([memset setlocale strcasecmp strchr strerror])
++
++AC_DEFINE(_GNU_SOURCE)
++
++AC_OUTPUT([Makefile intl/Makefile po/Makefile.in src/Makefile])
++
+diff -u -N -r rdj-0.3.2/include/defines.h rdj-0.3.2.patch/include/defines.h
+--- rdj-0.3.2/include/defines.h	Tue Aug 21 06:13:14 2001
++++ rdj-0.3.2.patch/include/defines.h	Tue Apr  2 18:29:08 2002
+@@ -25,7 +25,8 @@
+ // include the language support
+ #include "lang.h"
+ 
+-#define PPREFIX    "/usr/share/rdj"
++// using configure to specify that path
++//#define PPREFIX    "/usr/share/rdj"
+ #define PATH_PREFS PPREFIX"/xpm/prefs.xpm"
+ #define PATH_MUTE  PPREFIX"/xpm/mute_off.xpm"
+ #define PATH_MIXER PPREFIX"/xpm/mixer.xpm"
+diff -u -N -r rdj-0.3.2/include/lang.gettext.h rdj-0.3.2.patch/include/lang.gettext.h
+--- rdj-0.3.2/include/lang.gettext.h	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/include/lang.gettext.h	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,100 @@
++/*
++    rdj - a gtk+ radio program for video4linux devices
++    Copyright (C) 2000-2001  David Mimms, Jr.
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++ * This is for building the .rpm package.  Please translate as well.
++
++SUMMARY:
++ gtk+ radio program for Video4Linux users
++
++DESCRIPTION:
++ rdj is a gtk+ radio interface for bttv video devices with radio tuners.
++ Scanning, station editing, using devices radio0-3, setting a default
++ station, and having unlimited stations are fully supported. Also, you
++ can start your favorite television app and mixer from it.
++*/
++
++// Please translate only the words in quotation marks.
++
++// found in callbacks.cc
++#define STR_NO_DEV		gettext("That device doesn't exist.")
++#define STR_DEV_BUSY		gettext("Can't open the device because it's busy.")
++#define STR_NUFF_MEM		gettext("You don't have enough memory to save your entire list.")
++#define STR_NEED_FREQ		gettext("You must enter a frequency.")
++#define STR_NEED_NAME		gettext("You must enter a station name.")
++#define STR_NO_POUNDS		gettext("You can't use # signs")
++// found in interface.cc
++#define STR_RDJ_MESSAGE		gettext("rdj message")
++#define STR_RDJ_OPTIONS		gettext("rdj Options")
++#define STR_OPTIONS		gettext("Options")
++#define STR_STARTUP		gettext("Startup")
++#define STR_STATION		gettext("Station:")
++#define STR_SLAD                gettext("When rdj exits, save the current station as default")
++#define STR_LOAD_FREQ           gettext("use current")
++#define STR_FREQUENCY		gettext("Frequency:")
++#define STR_TUNE_INC		gettext("Tune Increment:")
++#define STR_RADIO_CARD		gettext("Radio Card")
++#define STR_CHOOSE_CARD		gettext("Choose your card:")
++#define STR_OTHER_PROGS		gettext("Other programs")
++#define STR_TV_PROG		gettext("Use this tv program:")
++#define STR_MIXER_PROG		gettext("Use this mixer:")
++#define STR_MUTE_ON_EXIT	gettext("Mute the radio on exit")
++#define STR_STORE_WIN_LOC       gettext("Remember window location")
++#define STR_PROMPT_ERR		gettext("Prompt on error")
++#define STR_GENERAL		gettext("General")
++#define STR_STATION_LST		gettext("Station List")
++#define STR_FREQ_COL		gettext("Freq")
++#define STR_STATION_COL		gettext("Station")
++#define STR_STATION_NAME	gettext("Station Name:")
++#define STR_FREQ_NUMBER		gettext("Frequency:")
++#define STR_ADD_LABEL		gettext("Add")
++#define STR_UPDATE_LABEL	gettext("Update")
++#define STR_REMOVE_LABEL	gettext("Remove")
++#define STR_LIST_POSITION	gettext("List Position")
++#define STR_MOVE_UP		gettext("Move Up")
++#define STR_MOVE_DOWN		gettext("Move Down")
++#define STR_STATIONS_TAB	gettext("Stations")
++#define STR_RDJ_ABOUT		gettext("About")
++#define STR_UNDER_GPL		gettext("Released under the GNU General Public License")
++#define STR_CLOSE		gettext("Close")
++#define STR_APPLY               gettext("Apply")
++#define STR_OK                  gettext("Ok")
++#define STR_NO_STATIONS         gettext("no stations")
++#define STR_FONT_SELECTOR       gettext("Select font")
++#define STR_TIP_OPTIONS         gettext("Options")
++#define STR_TIP_MUTE            gettext("Mute")
++#define STR_TIP_MIXER           gettext("Mixer")
++#define STR_TIP_TV              gettext("Tv")
++#define STR_TIP_QUIT            gettext("Quit")
++#define STR_STYLES              gettext("Styles")
++#define STR_COLORS              gettext("Color")
++#define STR_COLOR_FG            gettext("Foreground")
++#define STR_COLOR_BG            gettext("Background")
++
++// found in main.cc
++#define STR_NEED_DFT_STATION	gettext("You need to specify a default station\nin your config file.")
++#define STR_NO_OPEN_CARD	gettext("Your card could not be opened.")
++#define STR_RC_CREATED		gettext("Created resource file")
++#define STR_NO_RC_CREATE	gettext("Can't create the resource file")
++
++// new as of 0.2.13
++#define STR_SCAN_NOT_TUNE       gettext("Scan instead of tune")
++#define STR_SCAN_RANGE          gettext("Scan Range")
++#define STR_FIND_NEXT_ST        gettext("Find Next Station")
++#define STR_CLICK_SCAN          gettext("Click \"San Range\" to find all of your stations!")
+diff -u -N -r rdj-0.3.2/include/lang.h rdj-0.3.2.patch/include/lang.h
+--- rdj-0.3.2/include/lang.h	Sun Nov 25 02:18:05 2001
++++ rdj-0.3.2.patch/include/lang.h	Tue Apr  2 18:29:08 2002
+@@ -20,6 +20,17 @@
+ #ifndef _LANGS_H_
+ #define _LANGS_H_
+ 
++#ifdef LANG_USE_GETTEXT
++
++#ifdef __GNOME_I18N_H__
++# include <locale.h>
++#else
++# include <libintl.h>
++#endif
++#include "lang.gettext.h"
++
++#else
++
+ #ifdef english
+ #include "lang.english.h"
+ #endif
+@@ -56,4 +67,7 @@
+ /*  #ifdef <language> */
+ /*  #include "lang.<language>.h" */
+ /*  #endif */
++
++#endif /* #ifdef LANG_USE_GETTEXT */
++
+ #endif
+diff -u -N -r rdj-0.3.2/install.sh rdj-0.3.2.patch/install.sh
+--- rdj-0.3.2/install.sh	Wed Aug 15 07:03:35 2001
++++ rdj-0.3.2.patch/install.sh	Thu Jan  1 01:00:00 1970
+@@ -1,15 +0,0 @@
+-#!/bin/sh
+-cd src
+-echo -e "***************\n** Compiling **"
+-
+-if [ ! $# = 0 ]
+-	then
+-        make LANG=$1 rdj && (echo -e "\n********************\nEnter root password:"; \
+-		     su -c "make install"; \
+-		     echo -e "\n****************************\nInstallation script complete")
+-
+-else
+-        make rdj && (echo -e "\n********************\nEnter root password:"; \
+-		     su -c "make install"; \
+-		     echo -e "\n****************************\nInstallation script complete")
+-fi
+diff -u -N -r rdj-0.3.2/po/POTFILES.in rdj-0.3.2.patch/po/POTFILES.in
+--- rdj-0.3.2/po/POTFILES.in	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/po/POTFILES.in	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1 @@
++include/lang.gettext.h
+diff -u -N -r rdj-0.3.2/po/cs.po rdj-0.3.2.patch/po/cs.po
+--- rdj-0.3.2/po/cs.po	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/po/cs.po	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,196 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR Free Software Foundation, Inc.
++# Michal Stochmialek <misto@topnet.pl>, 2002.
++# Created from include file.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: rdj 0.3.2\n"
++"POT-Creation-Date: 2002-03-26 10:03+0100\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: Radek ╘╩astnЩ\n"
++"Language-Team: Czech\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-2\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++msgid "Find Next Station"
++msgstr "Find Next Station"
++
++msgid "List Position"
++msgstr "Pozice"
++
++msgid "Radio Card"
++msgstr "Radio karta"
++
++msgid "rdj Options"
++msgstr "rdj NastavenМ"
++
++msgid "Station"
++msgstr "Stanice"
++
++msgid "You don't have enough memory to save your entire list."
++msgstr "Nedostatek pamЛti k ulo╬enМ celИho seznamu."
++
++msgid "You must enter a frequency."
++msgstr "Zadejte prosМm frekvenci."
++
++msgid "Station Name:"
++msgstr "JmИno Stanice:"
++
++msgid "Created resource file"
++msgstr "Soubor s nastavenМm vytvoЬen"
++
++msgid "Quit"
++msgstr "UkonХit"
++
++msgid "no stations"
++msgstr "╬АdnИ stanice"
++
++msgid "Close"
++msgstr "ZavЬМt"
++
++msgid "Stations"
++msgstr "Stanice"
++
++msgid "Remember window location"
++msgstr "Pamatovat umМstЛnМ okna"
++
++msgid "rdj message"
++msgstr "rdj zprАva"
++
++msgid "Scan instead of tune"
++msgstr "Scan instead of tune"
++
++msgid "Mixer"
++msgstr "Mixer"
++
++msgid "Ok"
++msgstr "Ok"
++
++msgid "Station List"
++msgstr "Seznam Stanic"
++
++msgid "Other programs"
++msgstr "Dal╧М programy"
++
++msgid "When rdj exits, save the current station as default"
++msgstr "PЬi ukonХenМ rdj, ulo╬it aktuАlnМ stanici?"
++
++msgid "Scan Range"
++msgstr "Scan Range"
++
++msgid "Tv"
++msgstr "Tv"
++
++msgid "Use this tv program:"
++msgstr "Pou╬Мt tento tv program:"
++
++msgid "Use this mixer:"
++msgstr "Pou╬Мt tento mixer:"
++
++msgid "You can't use # signs"
++msgstr "Nelze pou╬Мvat znak #."
++
++msgid "You must enter a station name."
++msgstr "Zadejte prosМm jmИno stanice."
++
++msgid "Frequency:"
++msgstr "Frekvence:"
++
++msgid "Freq"
++msgstr "Frekv"
++
++msgid "That device doesn't exist."
++msgstr "ZaЬМzenМ neexistuje."
++
++msgid "Select font"
++msgstr "Vybrat font"
++
++msgid "Options"
++msgstr "NastavenМ"
++
++msgid "Apply"
++msgstr "Aplikovat"
++
++msgid "Released under the GNU General Public License"
++msgstr "Released under the GNU General Public License"
++
++msgid "You need to specify a default station\nin your config file."
++msgstr "Je nutnИ zadat zАkladnМ stanici\n v konfiguraХnМm souboru."
++
++msgid "Mute"
++msgstr "Ztlumit"
++
++msgid "Options"
++msgstr "NastavenМ"
++
++msgid "Your card could not be opened."
++msgstr "Kartu nelze otevЬМt."
++
++msgid "Color"
++msgstr "Barvy"
++
++msgid "Click \"San Range\" to find all of your stations!"
++msgstr "Click \"San Range\" to find all of your stations!"
++
++msgid "Station:"
++msgstr "Stanice:"
++
++msgid "Update"
++msgstr "Upravit"
++
++msgid "use current"
++msgstr "pou╬Мt aktuАlnМ"
++
++msgid "Background"
++msgstr "PozadМ"
++
++msgid "Styles"
++msgstr "Styly"
++
++msgid "Startup"
++msgstr "Po spu╧tЛnМ"
++
++msgid "Frequency:"
++msgstr "Frekvence:"
++
++msgid "Can't open the device because it's busy."
++msgstr "Nemohu otevЬМt zaЬМzenМ, ji╬ je pou╬МvАno."
++
++msgid "Remove"
++msgstr "Smazat"
++
++msgid "Foreground"
++msgstr "PopЬedМ"
++
++msgid "Can't create the resource file"
++msgstr "Nelze vytvoЬit soubor s nastavenМm"
++
++msgid "Prompt on error"
++msgstr "Podat zprАvu pЬi chybЛ"
++
++msgid "General"
++msgstr "HlavnМ"
++
++msgid "Choose your card:"
++msgstr "Vyberte Va╧i kartu:"
++
++msgid "About"
++msgstr "O aplikaci"
++
++msgid "Move Down"
++msgstr "DolЫ"
++
++msgid "Move Up"
++msgstr "Nahoru"
++
++msgid "Add"
++msgstr "PЬidat"
++
++msgid "Mute the radio on exit"
++msgstr "Ztlumit zvuk pЬi ukonХenМ"
++
++msgid "Tune Increment:"
++msgstr "Krok ladЛnМ:"
++
+diff -u -N -r rdj-0.3.2/po/de.po rdj-0.3.2.patch/po/de.po
+--- rdj-0.3.2/po/de.po	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/po/de.po	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,196 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR Free Software Foundation, Inc.
++# Michal Stochmialek <misto@topnet.pl>, 2002.
++# Created from include file.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: rdj 0.3.2\n"
++"POT-Creation-Date: 2002-03-26 10:03+0100\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: Holger Hermannsen\n"
++"Language-Team: Deutsch\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++msgid "Find Next Station"
++msgstr "Find Next Station"
++
++msgid "List Position"
++msgstr "Reihenfolge"
++
++msgid "Radio Card"
++msgstr "Radiokarte"
++
++msgid "rdj Options"
++msgstr "rdj Einstellungen"
++
++msgid "Station"
++msgstr "Sender"
++
++msgid "You don't have enough memory to save your entire list."
++msgstr "Nicht genug Speicher, um die ganze Liste zu speichern."
++
++msgid "You must enter a frequency."
++msgstr "Bitte eine Frequenz eingeben!"
++
++msgid "Station Name:"
++msgstr "Sendername:"
++
++msgid "Created resource file"
++msgstr "Einstellungen gespeichert"
++
++msgid "Quit"
++msgstr "Schlieъen"
++
++msgid "no stations"
++msgstr "Kein Sender"
++
++msgid "Close"
++msgstr "Schlieъen"
++
++msgid "Stations"
++msgstr "Sender"
++
++msgid "Remember window location"
++msgstr "Fensterposition speichern"
++
++msgid "rdj message"
++msgstr "rdj Mitteilung"
++
++msgid "Scan instead of tune"
++msgstr "Scan instead of tune"
++
++msgid "Mixer"
++msgstr "Audiomixer"
++
++msgid "Ok"
++msgstr "Ok"
++
++msgid "Station List"
++msgstr "Senderliste"
++
++msgid "Other programs"
++msgstr "Andere Programme"
++
++msgid "When rdj exits, save the current station as default"
++msgstr "Eingestellten Sender beim Beenden als Standard speichern"
++
++msgid "Scan Range"
++msgstr "Scan Range"
++
++msgid "Tv"
++msgstr "Tv"
++
++msgid "Use this tv program:"
++msgstr "TV-Software:"
++
++msgid "Use this mixer:"
++msgstr "Audiomixer:"
++
++msgid "You can't use # signs"
++msgstr "Das Zeichen # ist nicht erlaubt!"
++
++msgid "You must enter a station name."
++msgstr "Bitte einen Sendernamen eingeben!"
++
++msgid "Frequency:"
++msgstr "Frequenz:"
++
++msgid "Freq"
++msgstr "Freq"
++
++msgid "That device doesn't exist."
++msgstr "Dieses GerДt existiert nicht."
++
++msgid "Select font"
++msgstr "Schriftart wДhlen"
++
++msgid "Options"
++msgstr "Einstellungen"
++
++msgid "Apply"
++msgstr "эbernehmen"
++
++msgid "Released under the GNU General Public License"
++msgstr "Diese Software unterliegt der GNU General Public License"
++
++msgid "You need to specify a default station\nin your config file."
++msgstr "Bitte geben Sie einen Standardsender in den Einstellungen an."
++
++msgid "Mute"
++msgstr "Ton aus"
++
++msgid "Options"
++msgstr "Einstellungen"
++
++msgid "Your card could not be opened."
++msgstr "Auf GerДt kann nicht zugegriffen werden."
++
++msgid "Color"
++msgstr "Farbe"
++
++msgid "Click \"San Range\" to find all of your stations!"
++msgstr "Click \"San Range\" to find all of your stations!"
++
++msgid "Station:"
++msgstr "Sender:"
++
++msgid "Update"
++msgstr "Aktualisieren"
++
++msgid "use current"
++msgstr "Eingestellten Sender Эbernehmen"
++
++msgid "Background"
++msgstr "Hintergrund"
++
++msgid "Styles"
++msgstr "Schema"
++
++msgid "Startup"
++msgstr "Start"
++
++msgid "Frequency:"
++msgstr "Frequenz:"
++
++msgid "Can't open the device because it's busy."
++msgstr "Kann GerДt nicht Жffnen, da es bereits benutzt wird."
++
++msgid "Remove"
++msgstr "Entfernen"
++
++msgid "Foreground"
++msgstr "Vordergrund"
++
++msgid "Can't create the resource file"
++msgstr "Kann Einstellungen nicht speichern"
++
++msgid "Prompt on error"
++msgstr "Fehlermeldungen anzeigen"
++
++msgid "General"
++msgstr "Allgemein"
++
++msgid "Choose your card:"
++msgstr "WДhlen Sie Ihre Karte aus:"
++
++msgid "About"
++msgstr "Info"
++
++msgid "Move Down"
++msgstr "Nach unten"
++
++msgid "Move Up"
++msgstr "Nach oben"
++
++msgid "Add"
++msgstr "HinzufЭgen"
++
++msgid "Mute the radio on exit"
++msgstr "Ton aus bei Beenden"
++
++msgid "Tune Increment:"
++msgstr "Abstimmschritt:"
++
+diff -u -N -r rdj-0.3.2/po/es.po rdj-0.3.2.patch/po/es.po
+--- rdj-0.3.2/po/es.po	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/po/es.po	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,196 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR Free Software Foundation, Inc.
++# Michal Stochmialek <misto@topnet.pl>, 2002.
++# Created from include file.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: rdj 0.3.2\n"
++"POT-Creation-Date: 2002-03-26 10:03+0100\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: Miguel аngel FernАndez ChacСn\n"
++"Language-Team: Espanol\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++msgid "Find Next Station"
++msgstr "PrСxima emisora"
++
++msgid "List Position"
++msgstr "PosiciСn en Lista"
++
++msgid "Radio Card"
++msgstr "Tarjeta de Radio"
++
++msgid "rdj Options"
++msgstr "rdj Opciones"
++
++msgid "Station"
++msgstr "Emisora"
++
++msgid "You don't have enough memory to save your entire list."
++msgstr "Memoria insuficiente para guardar la lista."
++
++msgid "You must enter a frequency."
++msgstr "Debe introducir una frecuencia."
++
++msgid "Station Name:"
++msgstr "Nombre Emisora:"
++
++msgid "Created resource file"
++msgstr "Creado fichero de configuraciСn"
++
++msgid "Quit"
++msgstr "Cerrar"
++
++msgid "no stations"
++msgstr "no hay emisoras"
++
++msgid "Close"
++msgstr "Cerrar"
++
++msgid "Stations"
++msgstr "Emisoras"
++
++msgid "Remember window location"
++msgstr "Recordar posiciСn de ventana"
++
++msgid "rdj message"
++msgstr "mensaje rdj"
++
++msgid "Scan instead of tune"
++msgstr "Explorar en vez de sintonizar"
++
++msgid "Mixer"
++msgstr "Mezclador"
++
++msgid "Ok"
++msgstr "Ok"
++
++msgid "Station List"
++msgstr "Lista de Emisoras"
++
++msgid "Other programs"
++msgstr "Otros programas"
++
++msgid "When rdj exits, save the current station as default"
++msgstr "Guardar configuraciСn al salir"
++
++msgid "Scan Range"
++msgstr "Rango de exploraciСn"
++
++msgid "Tv"
++msgstr "Tv"
++
++msgid "Use this tv program:"
++msgstr "Usar este programa de tv:"
++
++msgid "Use this mixer:"
++msgstr "Usar este mezclador:"
++
++msgid "You can't use # signs"
++msgstr "No puede usar el carАcter #."
++
++msgid "You must enter a station name."
++msgstr "Debe introducir un nombre de emisora."
++
++msgid "Frequency:"
++msgstr "Frecuencia:"
++
++msgid "Freq"
++msgstr "Frec"
++
++msgid "That device doesn't exist."
++msgstr "No existe el dispositivo."
++
++msgid "Select font"
++msgstr "Seleccionar fuente"
++
++msgid "Options"
++msgstr "Opciones"
++
++msgid "Apply"
++msgstr "Aplicar"
++
++msgid "Released under the GNU General Public License"
++msgstr "Publicado bajo licencia GNU General Public License"
++
++msgid "You need to specify a default station\nin your config file."
++msgstr "Debe especificar una emisora por defecto\nen su configuraciСn."
++
++msgid "Mute"
++msgstr "Silencio"
++
++msgid "Options"
++msgstr "Opciones"
++
++msgid "Your card could not be opened."
++msgstr "No se puede acceder a su tarjeta."
++
++msgid "Color"
++msgstr "Color"
++
++msgid "Click \"San Range\" to find all of your stations!"
++msgstr "║Pulse \"Rango de exploraciСn\" para encontrar todas las emisoras disponibles!"
++
++msgid "Station:"
++msgstr "Emisora:"
++
++msgid "Update"
++msgstr "Modificar"
++
++msgid "use current"
++msgstr "usar actual"
++
++msgid "Background"
++msgstr "Fondo"
++
++msgid "Styles"
++msgstr "Estilos"
++
++msgid "Startup"
++msgstr "Inicio"
++
++msgid "Frequency:"
++msgstr "Frecuencia:"
++
++msgid "Can't open the device because it's busy."
++msgstr "Dispositivo ocupado."
++
++msgid "Remove"
++msgstr "Eliminar"
++
++msgid "Foreground"
++msgstr "Frente"
++
++msgid "Can't create the resource file"
++msgstr "No se puede crear fichero de configuraciСn"
++
++msgid "Prompt on error"
++msgstr "Preguntar en error"
++
++msgid "General"
++msgstr "General"
++
++msgid "Choose your card:"
++msgstr "Escoja tarjeta:"
++
++msgid "About"
++msgstr "Acerca de"
++
++msgid "Move Down"
++msgstr "Bajar"
++
++msgid "Move Up"
++msgstr "Subir"
++
++msgid "Add"
++msgstr "AЯadir"
++
++msgid "Mute the radio on exit"
++msgstr "Apagar la radio al salir"
++
++msgid "Tune Increment:"
++msgstr "Incremento sintonМa:"
++
+diff -u -N -r rdj-0.3.2/po/it.po rdj-0.3.2.patch/po/it.po
+--- rdj-0.3.2/po/it.po	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/po/it.po	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,196 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR Free Software Foundation, Inc.
++# Michal Stochmialek <misto@topnet>, 2002.
++# Created from include file.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: rdj 0.3.2\n"
++"POT-Creation-Date: 2002-03-26 10:03+0100\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: Jeff Petty, Federica Bolzan, Silvia D Giusti, Vanni Brutto\n"
++"Language-Team: Italiano\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++msgid "Find Next Station"
++msgstr "Find Next Station"
++
++msgid "List Position"
++msgstr "Posizione della lista"
++
++msgid "Radio Card"
++msgstr ""
++
++msgid "rdj Options"
++msgstr "Opzioni rdj"
++
++msgid "Station"
++msgstr "Stazione radio"
++
++msgid "You don't have enough memory to save your entire list."
++msgstr "Non hai abbastanza memoria per salvare l'intero elenco."
++
++msgid "You must enter a frequency."
++msgstr "Devi inserire una frequenza."
++
++msgid "Station Name:"
++msgstr "Nome della stazione radio:"
++
++msgid "Created resource file"
++msgstr "Creato un file di risorsa"
++
++msgid "Quit"
++msgstr "Esci"
++
++msgid "no stations"
++msgstr "nessuna stazione"
++
++msgid "Close"
++msgstr "Chiudi"
++
++msgid "Stations"
++msgstr "Stazione radio"
++
++msgid "Remember window location"
++msgstr "All'uscita salva la posizione della finestra"
++
++msgid "rdj message"
++msgstr "messaggio rdj"
++
++msgid "Scan instead of tune"
++msgstr "Scan instead of tune"
++
++msgid "Mixer"
++msgstr "Registratore"
++
++msgid "Ok"
++msgstr "Ok"
++
++msgid "Station List"
++msgstr "Lista della stazione radio"
++
++msgid "Other programs"
++msgstr "Altri programmi"
++
++msgid "When rdj exits, save the current station as default"
++msgstr "All'uscita di rdj salva la stazione corrente come default"
++
++msgid "Scan Range"
++msgstr "Scan Range"
++
++msgid "Tv"
++msgstr "Tv"
++
++msgid "Use this tv program:"
++msgstr "Usa questo programma tv:"
++
++msgid "Use this mixer:"
++msgstr "Usa questo registratore:"
++
++msgid "You can't use # signs"
++msgstr "Non puoi usare questo simbolo #"
++
++msgid "You must enter a station name."
++msgstr "Devi comporre il numero di frequenza corrispondente dell'emmitente radio."
++
++msgid "Frequency:"
++msgstr "Frequenza:"
++
++msgid "Freq"
++msgstr "Freq"
++
++msgid "That device doesn't exist."
++msgstr "Non esiste quel device."
++
++msgid "Select font"
++msgstr "Seleziona la fonte"
++
++msgid "Options"
++msgstr "Opzioni"
++
++msgid "Apply"
++msgstr "Applica"
++
++msgid "Released under the GNU General Public License"
++msgstr "Realizzata sotto la licenza della\nGNU (General Public License)"
++
++msgid "You need to specify a default station\nin your config file."
++msgstr "Devi specificare una stazione fissa nel tuo file di configurazione."
++
++msgid "Mute"
++msgstr "Abbassa"
++
++msgid "Options"
++msgstr "Opzioni"
++
++msgid "Your card could not be opened."
++msgstr "Your card could not be opened."
++
++msgid "Color"
++msgstr "Colore"
++
++msgid "Click \"San Range\" to find all of your stations!"
++msgstr "Click \"San Range\" to find all of your stations!"
++
++msgid "Station:"
++msgstr "Stazione radio:"
++
++msgid "Update"
++msgstr "Aggiorna"
++
++msgid "use current"
++msgstr "usa la frequenza\ncorrente"
++
++msgid "Background"
++msgstr "Sfondo"
++
++msgid "Styles"
++msgstr "Stile "
++
++msgid "Startup"
++msgstr "Inizializzazione"
++
++msgid "Frequency:"
++msgstr "Frequenza:"
++
++msgid "Can't open the device because it's busy."
++msgstr "Quel device non puР essere aperto in quanto occupato."
++
++msgid "Remove"
++msgstr "Togliere"
++
++msgid "Foreground"
++msgstr "Primo piano"
++
++msgid "Can't create the resource file"
++msgstr "Non e' possible creare un file di risorsa"
++
++msgid "Prompt on error"
++msgstr "Comando in errore"
++
++msgid "General"
++msgstr "Generale"
++
++msgid "Choose your card:"
++msgstr "Scegli la tua scheda:"
++
++msgid "About"
++msgstr "Informazioni su"
++
++msgid "Move Down"
++msgstr "Muovi giu'"
++
++msgid "Move Up"
++msgstr "Muovi su'"
++
++msgid "Add"
++msgstr "Aggiungi"
++
++msgid "Mute the radio on exit"
++msgstr "Abbassa il volume all'uscita"
++
++msgid "Tune Increment:"
++msgstr ""
++
+diff -u -N -r rdj-0.3.2/po/nl.po rdj-0.3.2.patch/po/nl.po
+--- rdj-0.3.2/po/nl.po	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/po/nl.po	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,196 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR Free Software Foundation, Inc.
++# Michal Stochmialek <misto@topnet.pl>, 2002.
++# Created from include file.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: rdj 0.3.2\n"
++"POT-Creation-Date: 2002-03-26 10:03+0100\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: Laurens Keek\n"
++"Language-Team: Dutch\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++msgid "Find Next Station"
++msgstr "Find Next Station"
++
++msgid "List Position"
++msgstr "Lijst Positie"
++
++msgid "Radio Card"
++msgstr "Radiokaart"
++
++msgid "rdj Options"
++msgstr "rdj Opties"
++
++msgid "Station"
++msgstr "Station"
++
++msgid "You don't have enough memory to save your entire list."
++msgstr "U heeft onvoldoende geheugen om de hele lijst op te slaan."
++
++msgid "You must enter a frequency."
++msgstr "U moet een frequentie invullen."
++
++msgid "Station Name:"
++msgstr "Stationnaam:"
++
++msgid "Created resource file"
++msgstr "Resource bestand is gemaakt"
++
++msgid "Quit"
++msgstr "Afsluiten"
++
++msgid "no stations"
++msgstr "geen stations"
++
++msgid "Close"
++msgstr "Afsluiten"
++
++msgid "Stations"
++msgstr "Stations"
++
++msgid "Remember window location"
++msgstr "Onthoud vensterpositie"
++
++msgid "rdj message"
++msgstr "rdj boodschap"
++
++msgid "Scan instead of tune"
++msgstr "Scan instead of tune"
++
++msgid "Mixer"
++msgstr "Mixer"
++
++msgid "Ok"
++msgstr "Ok"
++
++msgid "Station List"
++msgstr "Stationlijst"
++
++msgid "Other programs"
++msgstr "Andere programma's"
++
++msgid "When rdj exits, save the current station as default"
++msgstr "Sla het huidige station op als default wanneer rdj afsluit."
++
++msgid "Scan Range"
++msgstr "Scan Range"
++
++msgid "Tv"
++msgstr "TV"
++
++msgid "Use this tv program:"
++msgstr "Gebruik dit TV programma:"
++
++msgid "Use this mixer:"
++msgstr "Gebruik deze mixer:"
++
++msgid "You can't use # signs"
++msgstr "U kunt het teken # niet gebruiken"
++
++msgid "You must enter a station name."
++msgstr "U moet een stationnaam invullen."
++
++msgid "Frequency:"
++msgstr "Frequentie:"
++
++msgid "Freq"
++msgstr "Freq"
++
++msgid "That device doesn't exist."
++msgstr "Dit apparaat bestaat niet"
++
++msgid "Select font"
++msgstr "Kies lettertype"
++
++msgid "Options"
++msgstr "Opties"
++
++msgid "Apply"
++msgstr "Toepassen"
++
++msgid "Released under the GNU General Public License"
++msgstr "Uitgebracht onder de GNU General Public License"
++
++msgid "You need to specify a default station\nin your config file."
++msgstr "U moet een default station aangeven\nin uw config bestand."
++
++msgid "Mute"
++msgstr "Geluid aan/uit"
++
++msgid "Options"
++msgstr "Opties"
++
++msgid "Your card could not be opened."
++msgstr "Uw kaart kan niet geopend worden."
++
++msgid "Color"
++msgstr "Kleur"
++
++msgid "Click \"San Range\" to find all of your stations!"
++msgstr "Click \"San Range\" to find all of your stations!"
++
++msgid "Station:"
++msgstr "Station:"
++
++msgid "Update"
++msgstr "Update"
++
++msgid "use current"
++msgstr "gebruik huidige"
++
++msgid "Background"
++msgstr "Achtergrond"
++
++msgid "Styles"
++msgstr "Stijl"
++
++msgid "Startup"
++msgstr "Opstarten"
++
++msgid "Frequency:"
++msgstr "Frequentie:"
++
++msgid "Can't open the device because it's busy."
++msgstr "Apparaat is al bezig en kan niet geopend worden"
++
++msgid "Remove"
++msgstr "Verwijderen"
++
++msgid "Foreground"
++msgstr "Voorgrond"
++
++msgid "Can't create the resource file"
++msgstr "Resource bestand kon niet gemaakt worden"
++
++msgid "Prompt on error"
++msgstr "Meld fouten"
++
++msgid "General"
++msgstr "Algemeen"
++
++msgid "Choose your card:"
++msgstr "Kies uw kaart:"
++
++msgid "About"
++msgstr "Info"
++
++msgid "Move Down"
++msgstr "Omlaag"
++
++msgid "Move Up"
++msgstr "Omhoog"
++
++msgid "Add"
++msgstr "Toevoegen"
++
++msgid "Mute the radio on exit"
++msgstr "Geluid uit bij afsluiten"
++
++msgid "Tune Increment:"
++msgstr "Stapgrootte tunen:"
++
+diff -u -N -r rdj-0.3.2/po/rdj.pot rdj-0.3.2.patch/po/rdj.pot
+--- rdj-0.3.2/po/rdj.pot	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/po/rdj.pot	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,249 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR Free Software Foundation, Inc.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++#, fuzzy
++msgid ""
++msgstr ""
++"Project-Id-Version: PACKAGE VERSION\n"
++"POT-Creation-Date: 2002-03-26 10:03+0100\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: LANGUAGE <LL@li.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=CHARSET\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: lang.gettext.h:36
++msgid "That device doesn't exist."
++msgstr ""
++
++#: lang.gettext.h:37
++msgid "Can't open the device because it's busy."
++msgstr ""
++
++#: lang.gettext.h:38
++msgid "You don't have enough memory to save your entire list."
++msgstr ""
++
++#: lang.gettext.h:39
++msgid "You must enter a frequency."
++msgstr ""
++
++#: lang.gettext.h:40
++msgid "You must enter a station name."
++msgstr ""
++
++#: lang.gettext.h:41
++msgid "You can't use # signs"
++msgstr ""
++
++#: lang.gettext.h:43
++msgid "rdj message"
++msgstr ""
++
++#: lang.gettext.h:44
++msgid "rdj Options"
++msgstr ""
++
++#: lang.gettext.h:45 lang.gettext.h:80
++msgid "Options"
++msgstr ""
++
++#: lang.gettext.h:46
++msgid "Startup"
++msgstr ""
++
++#: lang.gettext.h:47
++msgid "Station:"
++msgstr ""
++
++#: lang.gettext.h:48
++msgid "When rdj exits, save the current station as default"
++msgstr ""
++
++#: lang.gettext.h:49
++msgid "use current"
++msgstr ""
++
++#: lang.gettext.h:50 lang.gettext.h:65
++msgid "Frequency:"
++msgstr ""
++
++#: lang.gettext.h:51
++msgid "Tune Increment:"
++msgstr ""
++
++#: lang.gettext.h:52
++msgid "Radio Card"
++msgstr ""
++
++#: lang.gettext.h:53
++msgid "Choose your card:"
++msgstr ""
++
++#: lang.gettext.h:54
++msgid "Other programs"
++msgstr ""
++
++#: lang.gettext.h:55
++msgid "Use this tv program:"
++msgstr ""
++
++#: lang.gettext.h:56
++msgid "Use this mixer:"
++msgstr ""
++
++#: lang.gettext.h:57
++msgid "Mute the radio on exit"
++msgstr ""
++
++#: lang.gettext.h:58
++msgid "Remember window location"
++msgstr ""
++
++#: lang.gettext.h:59
++msgid "Prompt on error"
++msgstr ""
++
++#: lang.gettext.h:60
++msgid "General"
++msgstr ""
++
++#: lang.gettext.h:61
++msgid "Station List"
++msgstr ""
++
++#: lang.gettext.h:62
++msgid "Freq"
++msgstr ""
++
++#: lang.gettext.h:63
++msgid "Station"
++msgstr ""
++
++#: lang.gettext.h:64
++msgid "Station Name:"
++msgstr ""
++
++#: lang.gettext.h:66
++msgid "Add"
++msgstr ""
++
++#: lang.gettext.h:67
++msgid "Update"
++msgstr ""
++
++#: lang.gettext.h:68
++msgid "Remove"
++msgstr ""
++
++#: lang.gettext.h:69
++msgid "List Position"
++msgstr ""
++
++#: lang.gettext.h:70
++msgid "Move Up"
++msgstr ""
++
++#: lang.gettext.h:71
++msgid "Move Down"
++msgstr ""
++
++#: lang.gettext.h:72
++msgid "Stations"
++msgstr ""
++
++#: lang.gettext.h:73
++msgid "About"
++msgstr ""
++
++#: lang.gettext.h:74
++msgid "Released under the GNU General Public License"
++msgstr ""
++
++#: lang.gettext.h:75
++msgid "Close"
++msgstr ""
++
++#: lang.gettext.h:76
++msgid "Apply"
++msgstr ""
++
++#: lang.gettext.h:77
++msgid "Ok"
++msgstr ""
++
++#: lang.gettext.h:78
++msgid "no stations"
++msgstr ""
++
++#: lang.gettext.h:79
++msgid "Select font"
++msgstr ""
++
++#: lang.gettext.h:81
++msgid "Mute"
++msgstr ""
++
++#: lang.gettext.h:82
++msgid "Mixer"
++msgstr ""
++
++#: lang.gettext.h:83
++msgid "Tv"
++msgstr ""
++
++#: lang.gettext.h:84
++msgid "Quit"
++msgstr ""
++
++#: lang.gettext.h:85
++msgid "Styles"
++msgstr ""
++
++#: lang.gettext.h:86
++msgid "Color"
++msgstr ""
++
++#: lang.gettext.h:87
++msgid "Foreground"
++msgstr ""
++
++#: lang.gettext.h:88
++msgid "Background"
++msgstr ""
++
++#: lang.gettext.h:91
++msgid ""
++"You need to specify a default station\n"
++"in your config file."
++msgstr ""
++
++#: lang.gettext.h:92
++msgid "Your card could not be opened."
++msgstr ""
++
++#: lang.gettext.h:93
++msgid "Created resource file"
++msgstr ""
++
++#: lang.gettext.h:94
++msgid "Can't create the resource file"
++msgstr ""
++
++#: lang.gettext.h:97
++msgid "Scan instead of tune"
++msgstr ""
++
++#: lang.gettext.h:98
++msgid "Scan Range"
++msgstr ""
++
++#: lang.gettext.h:99
++msgid "Find Next Station"
++msgstr ""
++
++#: lang.gettext.h:100
++msgid "Click \"San Range\" to find all of your stations!"
++msgstr ""
+diff -u -N -r rdj-0.3.2/po/ru.po rdj-0.3.2.patch/po/ru.po
+--- rdj-0.3.2/po/ru.po	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/po/ru.po	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,196 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR Free Software Foundation, Inc.
++# Michal Stochmialek <misto@topnet.pl>, 2002.
++# Created from include file.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: rdj 0.3.2\n"
++"POT-Creation-Date: 2002-03-26 10:03+0100\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: Andrey Kiselev\n"
++"Language-Team: Russian\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=KOI8-R\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++msgid "Find Next Station"
++msgstr "Find Next Station"
++
++msgid "List Position"
++msgstr "Позиция в списке"
++
++msgid "Radio Card"
++msgstr "Устройство"
++
++msgid "rdj Options"
++msgstr "Параметры rdj"
++
++msgid "Station"
++msgstr "Станция"
++
++msgid "You don't have enough memory to save your entire list."
++msgstr "Недостаточно памяти для сохранения всего списка."
++
++msgid "You must enter a frequency."
++msgstr "Вы должны указать частоту."
++
++msgid "Station Name:"
++msgstr "Название станции:"
++
++msgid "Created resource file"
++msgstr "Создан конфигурационный файл"
++
++msgid "Quit"
++msgstr "Выход"
++
++msgid "no stations"
++msgstr "нет станций"
++
++msgid "Close"
++msgstr "Закрыть"
++
++msgid "Stations"
++msgstr "Станции"
++
++msgid "Remember window location"
++msgstr "Запоминать положение окна"
++
++msgid "rdj message"
++msgstr "сообщение rdj"
++
++msgid "Scan instead of tune"
++msgstr "Scan instead of tune"
++
++msgid "Mixer"
++msgstr "Микшер"
++
++msgid "Ok"
++msgstr "Ok"
++
++msgid "Station List"
++msgstr "Список станций"
++
++msgid "Other programs"
++msgstr "Другие программы"
++
++msgid "When rdj exits, save the current station as default"
++msgstr "При выходе из rdj сохранить текущую станцию в качестве используемой по умолчанию"
++
++msgid "Scan Range"
++msgstr "Scan Range"
++
++msgid "Tv"
++msgstr "ТВ"
++
++msgid "Use this tv program:"
++msgstr "Использовать программу просмотра ТВ:"
++
++msgid "Use this mixer:"
++msgstr "Использовать микшер:"
++
++msgid "You can't use # signs"
++msgstr "Вы не можете использовать символы #"
++
++msgid "You must enter a station name."
++msgstr "Вы должны указать название станции."
++
++msgid "Frequency:"
++msgstr "Частота:"
++
++msgid "Freq"
++msgstr "Частота"
++
++msgid "That device doesn't exist."
++msgstr "Это устройство не существует."
++
++msgid "Select font"
++msgstr "Выбрать шрифт"
++
++msgid "Options"
++msgstr "Параметры"
++
++msgid "Apply"
++msgstr "Применить"
++
++msgid "Released under the GNU General Public License"
++msgstr "Перевод: Андрей Киселев, 2001\n\nРаспространяется под GNU GPL"
++
++msgid "You need to specify a default station\nin your config file."
++msgstr "Вы должны задать станцию по умолчанию\nв своем конфигурационном файле."
++
++msgid "Mute"
++msgstr "Выключить звук"
++
++msgid "Options"
++msgstr "Параметры"
++
++msgid "Your card could not be opened."
++msgstr "Ваша карта не может быть использована."
++
++msgid "Color"
++msgstr "Цвет"
++
++msgid "Click \"San Range\" to find all of your stations!"
++msgstr "Click \"San Range\" to find all of your stations!"
++
++msgid "Station:"
++msgstr "Станция:"
++
++msgid "Update"
++msgstr "Обновить"
++
++msgid "use current"
++msgstr "использовать текущую"
++
++msgid "Background"
++msgstr "Фон"
++
++msgid "Styles"
++msgstr "Стиль"
++
++msgid "Startup"
++msgstr "Запуск"
++
++msgid "Frequency:"
++msgstr "Частота:"
++
++msgid "Can't open the device because it's busy."
++msgstr "Устройство занято, не удалось получить доступ."
++
++msgid "Remove"
++msgstr "Удалить"
++
++msgid "Foreground"
++msgstr "Передний план"
++
++msgid "Can't create the resource file"
++msgstr "Не удалось создать конфигурационный файл"
++
++msgid "Prompt on error"
++msgstr "Спрашивать при ошибке"
++
++msgid "General"
++msgstr "Общие"
++
++msgid "Choose your card:"
++msgstr "Выбор карты:"
++
++msgid "About"
++msgstr "О программе"
++
++msgid "Move Down"
++msgstr "Опустить"
++
++msgid "Move Up"
++msgstr "Поднять"
++
++msgid "Add"
++msgstr "Добавить"
++
++msgid "Mute the radio on exit"
++msgstr "Выключать радио при выходе"
++
++msgid "Tune Increment:"
++msgstr "Приращение частоты:"
++
+diff -u -N -r rdj-0.3.2/po/tr.po rdj-0.3.2.patch/po/tr.po
+--- rdj-0.3.2/po/tr.po	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/po/tr.po	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,196 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR Free Software Foundation, Inc.
++# Michal Stochmialek <misto@topnet.pl>, 2002.
++# Created from include file.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: rdj 0.3.2\n"
++"POT-Creation-Date: 2002-03-26 10:03+0100\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: Filiz Gungordu\n"
++"Language-Team: Turkiye\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-9\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++msgid "Find Next Station"
++msgstr "Find Next Station"
++
++msgid "List Position"
++msgstr "Liste Konumu"
++
++msgid "Radio Card"
++msgstr "Radyo Karti"
++
++msgid "rdj Options"
++msgstr "rdj secenekleri"
++
++msgid "Station"
++msgstr "Istasyon"
++
++msgid "You don't have enough memory to save your entire list."
++msgstr "Tum listeyi saklamak icin yeterli bellek yok"
++
++msgid "You must enter a frequency."
++msgstr "Lutfen bir frekans giriniz."
++
++msgid "Station Name:"
++msgstr "Istasyon Adi:"
++
++msgid "Created resource file"
++msgstr "Ozkaynak dosyasi acildi"
++
++msgid "Quit"
++msgstr "Quit"
++
++msgid "no stations"
++msgstr "Hic istasyon yok"
++
++msgid "Close"
++msgstr "Kapat"
++
++msgid "Stations"
++msgstr "Istasyonlar"
++
++msgid "Remember window location"
++msgstr "Pencere konumunu sakla"
++
++msgid "rdj message"
++msgstr "rdj mesaji"
++
++msgid "Scan instead of tune"
++msgstr "Scan instead of tune"
++
++msgid "Mixer"
++msgstr "Mixer"
++
++msgid "Ok"
++msgstr "Tamam"
++
++msgid "Station List"
++msgstr "Istasyon Listesi"
++
++msgid "Other programs"
++msgstr "Diger programlar"
++
++msgid "When rdj exits, save the current station as default"
++msgstr "rdj'den cikarken, simdiki istasyonu sakla"
++
++msgid "Scan Range"
++msgstr "Scan Range"
++
++msgid "Tv"
++msgstr "Tv"
++
++msgid "Use this tv program:"
++msgstr "Bu TV programini kullan:"
++
++msgid "Use this mixer:"
++msgstr "Bu mikseri kullan:"
++
++msgid "You can't use # signs"
++msgstr "# kullanilmaz"
++
++msgid "You must enter a station name."
++msgstr "Bir istasyon adi giriniz."
++
++msgid "Frequency:"
++msgstr "Frekans:"
++
++msgid "Freq"
++msgstr "Frekans"
++
++msgid "That device doesn't exist."
++msgstr "Cevre birimi bulanamadi"
++
++msgid "Select font"
++msgstr "Select font"
++
++msgid "Options"
++msgstr "Secenekler"
++
++msgid "Apply"
++msgstr "Uygula"
++
++msgid "Released under the GNU General Public License"
++msgstr "GNU Genel Public Lisansiyla surulmustur"
++
++msgid "You need to specify a default station\nin your config file."
++msgstr "Olagan bir istasyon adi verin."
++
++msgid "Mute"
++msgstr "Mute"
++
++msgid "Options"
++msgstr "Options"
++
++msgid "Your card could not be opened."
++msgstr "Kart cevap vermiyor."
++
++msgid "Color"
++msgstr "Color"
++
++msgid "Click \"San Range\" to find all of your stations!"
++msgstr "Click \"San Range\" to find all of your stations!"
++
++msgid "Station:"
++msgstr "Istasyon:"
++
++msgid "Update"
++msgstr "Guncellestir"
++
++msgid "use current"
++msgstr "simdikini kullan"
++
++msgid "Background"
++msgstr "Background"
++
++msgid "Styles"
++msgstr "Styles"
++
++msgid "Startup"
++msgstr "Baslangic"
++
++msgid "Frequency:"
++msgstr "Frekans:"
++
++msgid "Can't open the device because it's busy."
++msgstr "Cevre birimi acilmadi veya mesgul"
++
++msgid "Remove"
++msgstr "Sil"
++
++msgid "Foreground"
++msgstr "Foreground"
++
++msgid "Can't create the resource file"
++msgstr "Ozkaynak dosyasi acilamadi"
++
++msgid "Prompt on error"
++msgstr "Hata durumunda uyar"
++
++msgid "General"
++msgstr "Genel"
++
++msgid "Choose your card:"
++msgstr "Kart secimi:"
++
++msgid "About"
++msgstr "rdj hakkinda"
++
++msgid "Move Down"
++msgstr "Asagi"
++
++msgid "Move Up"
++msgstr "Yukari"
++
++msgid "Add"
++msgstr "Ekle"
++
++msgid "Mute the radio on exit"
++msgstr "Cikarken radyonun sesini kis"
++
++msgid "Tune Increment:"
++msgstr "Ayar basamagi:"
++
+diff -u -N -r rdj-0.3.2/rdj.desktop rdj-0.3.2.patch/rdj.desktop
+--- rdj-0.3.2/rdj.desktop	Thu Apr 26 17:48:27 2001
++++ rdj-0.3.2.patch/rdj.desktop	Tue Apr  2 18:29:59 2002
+@@ -3,5 +3,5 @@
+ Comment=gtk+ radio device controller
+ Exec=rdj
+ Terminal=0
+-Icon=/usr/share/rdj/rdj_icon.xpm
++Icon=rdj_icon1.png
+ Type=Application
+diff -u -N -r rdj-0.3.2/src/Makefile.am rdj-0.3.2.patch/src/Makefile.am
+--- rdj-0.3.2/src/Makefile.am	Thu Jan  1 01:00:00 1970
++++ rdj-0.3.2.patch/src/Makefile.am	Tue Apr  2 18:29:08 2002
+@@ -0,0 +1,21 @@
++bin_PROGRAMS=rdj rdj_scan rdj_term fscan
++
++rdj_SOURCES=radioclass.cc stationlist.cc main.cc callbacks.cc\
++	    globals.cc lirc.cc interface.cc config.cc
++rdj_LDADD=@INTLLIBS@  $(GNOME_LIBS) $(GTK_LIBS)
++rdj_CXXFLAGS=-DLANG_USE_GETTEXT $(GNOME_CFLAGS) $(GTK_CFLAGS) \
++	 -DVERSIONSTR='"rdj v$(VERSION)"' \
++	 -DPPREFIX='"$(pkgdatadir)"'
++	 
++rdj_scan_SOURCES=rdj_scan.cc radioclass.cc
++rdj_scan_LDADD=@INTLLIBS@  $(GNOME_LIBS) $(GTK_LIBS)
++rdj_scan_CXXFLAGS=-DLANG_USE_GETTEXT $(GNOME_CFLAGS) $(GTK_CFLAGS) 
++
++rdj_term_SOURCES=rdj_term.cc radioclass.cc stationlist.cc\
++		 config.cc globals.cc
++rdj_term_LDADD=@INTLLIBS@  $(GNOME_LIBS) $(GTK_LIBS)
++rdj_term_CXXFLAGS=-DLANG_USE_GETTEXT $(GNOME_CFLAGS) $(GTK_CFLAGS) 
++
++fscan_SOURCES=fscan.cc radioclass.cc
++
++INCLUDES = -I../include
+diff -u -N -r rdj-0.3.2/src/callbacks.cc rdj-0.3.2.patch/src/callbacks.cc
+--- rdj-0.3.2/src/callbacks.cc	Wed Oct 24 05:52:55 2001
++++ rdj-0.3.2.patch/src/callbacks.cc	Tue Apr  2 18:29:08 2002
+@@ -393,7 +393,7 @@
+     if (counter == 0) {
+       printf ("rdj: no stations in list...adding temp\n");
+       if (tha_list->add_station (STR_NO_STATIONS, FREQLOW) == SRET_MEM) {
+-	printf (STR_NUFF_MEM"\n");
++	printf ("%s\n",STR_NUFF_MEM);
+       }
+     }
+   }
+diff -u -N -r rdj-0.3.2/src/config.cc rdj-0.3.2.patch/src/config.cc
+--- rdj-0.3.2/src/config.cc	Tue Oct 23 18:26:07 2001
++++ rdj-0.3.2.patch/src/config.cc	Tue Apr  2 18:29:08 2002
+@@ -103,7 +103,7 @@
+    if (!rc) {
+      rc = fopen (rc_file, "w");
+      if (!rc) {
+-       printf (STR_NO_RC_CREATE": %s\n", rc_file);
++       printf ("%s: %s\n",STR_NO_RC_CREATE, rc_file);
+        return -1;
+      } else {
+        user_new = true;
+@@ -144,7 +144,7 @@
+        fprintf (rc, "Italia Network = 96.76");
+ #endif
+        fclose (rc);
+-       printf (STR_RC_CREATED": %s\n", rc_file);
++       printf ("%s: %s\n",STR_RC_CREATED, rc_file);
+      }
+      rc = fopen (rc_file, "r");
+    }
+@@ -297,7 +297,7 @@
+        }
+ 
+        if (tha_list->add_station(station, freq) == SRET_MEM) {
+-	 printf(STR_NUFF_MEM"\n");
++	 printf("%s\n", STR_NUFF_MEM);
+ 	 //exit app
+ 	 return SRET_MEM;
+        }
+@@ -309,7 +309,7 @@
+ 
+    if (is_station == 0) {
+        if (tha_list->add_station (STR_NO_STATIONS, FREQLOW) == SRET_MEM) {
+-	 printf (STR_NUFF_MEM"\n");
++	 printf ("%s\n",STR_NUFF_MEM);
+ 	 return SRET_MEM;
+        }
+    }
+diff -u -N -r rdj-0.3.2/src/interface.cc rdj-0.3.2.patch/src/interface.cc
+--- rdj-0.3.2/src/interface.cc	Sun Nov 25 03:01:45 2001
++++ rdj-0.3.2.patch/src/interface.cc	Tue Apr  2 18:29:08 2002
+@@ -70,7 +70,10 @@
+ {
+   GtkWidget *fs;
+   
+-  fs = gtk_font_selection_dialog_new ("  "STR_FONT_SELECTOR"  ");
++  { char x[strlen(STR_FONT_SELECTOR)+5];
++    sprintf(x,"%s%s%s", "  ", STR_FONT_SELECTOR, "  ");
++    fs = gtk_font_selection_dialog_new ( x );
++  }
+   gtk_font_selection_dialog_set_font_name (GTK_FONT_SELECTION_DIALOG(fs), temp_font);
+   
+   gtk_signal_connect(GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(fs)->ok_button), "clicked",
+@@ -347,7 +350,10 @@
+   gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                       GTK_SIGNAL_FUNC (on_options_clicked), NULL);
+   gtk_container_add (GTK_CONTAINER (button), box);
+-  gtk_tooltips_set_tip (tooltip, button, STR_TIP_OPTIONS" [o]", NULL);
++  { char x[strlen(STR_TIP_OPTIONS)+5];
++    sprintf(x,"%s%s", STR_TIP_OPTIONS, " [o]");
++    gtk_tooltips_set_tip (tooltip, button, x , NULL);
++  }
+   gtk_widget_set_usize (button, 35, -2);
+   gtk_widget_show (button);
+ 
+@@ -362,7 +368,11 @@
+   gtk_signal_connect (GTK_OBJECT (togglebutton1), "toggled",
+                       GTK_SIGNAL_FUNC (on_mute_toggled_toggled), NULL);
+   gtk_container_add (GTK_CONTAINER (togglebutton1), box);
+-  gtk_tooltips_set_tip (tooltip, togglebutton1, STR_TIP_MUTE" [m]", NULL);
++  
++  { char x[strlen(STR_TIP_MUTE)+5];
++    sprintf(x,"%s%s", STR_TIP_MUTE, " [m]");
++    gtk_tooltips_set_tip (tooltip, togglebutton1,x, NULL);
++  }
+   gtk_widget_show (togglebutton1);
+   gtk_widget_set_usize (togglebutton1, 35, -2);
+   toggle_mute_btn = togglebutton1;
+@@ -378,7 +388,10 @@
+   gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                       GTK_SIGNAL_FUNC (on_mixer_clicked), NULL);
+   gtk_container_add (GTK_CONTAINER (button), box);
+-  gtk_tooltips_set_tip (tooltip, button, STR_TIP_MIXER" [s]", NULL);
++  { char x[strlen(STR_TIP_MIXER)+5];
++    sprintf(x,"%s%s", STR_TIP_MIXER, " [s]");
++    gtk_tooltips_set_tip (tooltip, button, x, NULL);
++  }
+   gtk_widget_set_usize (button, 35, -2);
+   gtk_widget_show (button);
+ 
+@@ -394,7 +407,11 @@
+     gtk_signal_connect (GTK_OBJECT (togglebutton1), "toggled",
+ 			GTK_SIGNAL_FUNC (on_tv_toggled), NULL);
+     gtk_container_add (GTK_CONTAINER (togglebutton1), box);
+-    gtk_tooltips_set_tip (tooltip, togglebutton1, STR_TIP_TV" [t]", NULL);
++    
++    { char x[strlen(STR_TIP_TV)+5];
++      sprintf(x,"%s%s", STR_TIP_TV, " [t]");
++      gtk_tooltips_set_tip (tooltip, togglebutton1, x, NULL);
++    }
+     gtk_widget_set_usize (togglebutton1, 35, -2);
+     gtk_widget_show (togglebutton1);
+     toggle_tv_btn = togglebutton1;
+@@ -410,7 +427,10 @@
+   gtk_container_set_border_width (GTK_CONTAINER (button), 3);
+   gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (exit_app), NULL);
+   gtk_container_add (GTK_CONTAINER (button), box);
+-  gtk_tooltips_set_tip (tooltip, button, STR_TIP_QUIT" [q]", NULL);
++  { char x[strlen(STR_TIP_QUIT)+5];
++    sprintf(x,"%s%s", STR_TIP_QUIT, " [q]");
++    gtk_tooltips_set_tip (tooltip, button, x, NULL);
++  }
+   gtk_widget_set_usize (button, 35, -2);
+   gtk_widget_show (button);
+ 
+@@ -644,7 +664,10 @@
+   gtk_widget_show (hbox5);
+   gtk_container_add (GTK_CONTAINER (frame4), hbox5);
+ 
+-  label7 = gtk_label_new ("  "STR_CHOOSE_CARD"  ");
++  { char x[strlen(STR_CHOOSE_CARD)+5];
++    sprintf(x,"%s%s%s", "  ", STR_CHOOSE_CARD, "  ");
++    label7 = gtk_label_new ( x );
++  }
+   gtk_widget_ref (label7);
+   gtk_object_set_data_full (GTK_OBJECT (options_window), "label7", label7,
+                             (GtkDestroyNotify) gtk_widget_unref);
+@@ -722,7 +745,10 @@
+   gtk_widget_show (hbox13);
+   gtk_box_pack_start (GTK_BOX (vbox8), hbox13, FALSE, FALSE, 0);
+ 
+-  label1 = gtk_label_new ("  "STR_TV_PROG"  ");
++  { char x[strlen(STR_TV_PROG)+5];
++    sprintf(x,"%s%s%s", "  ", STR_TV_PROG, "  ");
++    label1 = gtk_label_new ( x );
++  }
+   gtk_widget_ref (label1);
+   gtk_object_set_data_full (GTK_OBJECT (options_window), "label1", label1,
+                             (GtkDestroyNotify) gtk_widget_unref);
+@@ -744,7 +770,10 @@
+   gtk_widget_show (hbox13);
+   gtk_box_pack_start (GTK_BOX (vbox8), hbox13, FALSE, FALSE, 0);
+ 
+-  label1 = gtk_label_new ("  "STR_MIXER_PROG"  ");
++  { char x[strlen(STR_MIXER_PROG)+5];
++    sprintf(x,"%s%s%s", "  ", STR_MIXER_PROG, "  ");
++    label1 = gtk_label_new ( x );
++  }
+   gtk_widget_ref (label1);
+   gtk_object_set_data_full (GTK_OBJECT (options_window), "label1", label1,
+                             (GtkDestroyNotify) gtk_widget_unref);
+@@ -760,7 +789,10 @@
+   gtk_widget_set_usize (options_mixer_entry, 120, -2);
+ 
+   // mute on exit
+-  checkbutton1 = gtk_check_button_new_with_label ("  "STR_MUTE_ON_EXIT"  ");
++  { char x[strlen(STR_MUTE_ON_EXIT)+5];
++    sprintf(x,"%s%s%s", "  ", STR_MUTE_ON_EXIT, "  ");
++    checkbutton1 = gtk_check_button_new_with_label (x);
++  }
+   gtk_widget_ref (checkbutton1);
+   gtk_object_set_data_full (GTK_OBJECT (options_window), "checkbutton1", checkbutton1,
+                             (GtkDestroyNotify) gtk_widget_unref);
+@@ -774,7 +806,10 @@
+   }
+ 
+   // wine on error
+-  checkbutton2 = gtk_check_button_new_with_label ("  "STR_PROMPT_ERR"  ");
++  { char x[strlen(STR_PROMPT_ERR)+5];
++    sprintf(x,"%s%s%s", "  ", STR_PROMPT_ERR, "  ");
++    checkbutton2 = gtk_check_button_new_with_label (x);
++  }
+   gtk_widget_ref (checkbutton2);
+   gtk_object_set_data_full (GTK_OBJECT (options_window), "checkbutton2", checkbutton2,
+                             (GtkDestroyNotify) gtk_widget_unref);
+@@ -789,7 +824,10 @@
+   }
+ 
+   // keep location
+-  checkbutton1 = gtk_check_button_new_with_label ("  "STR_STORE_WIN_LOC"  ");
++  { char x[strlen(STR_STORE_WIN_LOC)+5];
++    sprintf(x,"%s%s%s", "  ", STR_STORE_WIN_LOC, "  ");
++    checkbutton1 = gtk_check_button_new_with_label (x);
++  }
+   gtk_widget_ref (checkbutton1);
+   gtk_object_set_data_full (GTK_OBJECT (options_window), "checkbutton1", checkbutton1,
+                             (GtkDestroyNotify) gtk_widget_unref);
+@@ -1105,7 +1143,10 @@
+   gtk_container_add (GTK_CONTAINER (frame6), hbox4);
+ 
+   // selection font
+-  button1 = gtk_button_new_with_label ("  "STR_FONT_SELECTOR"  ");
++  { char x[strlen(STR_FONT_SELECTOR)+5];
++    sprintf(x,"%s%s%s", "  ", STR_FONT_SELECTOR, "  ");
++    button1 = gtk_button_new_with_label (x);
++  }
+   gtk_widget_show (button1);
+   gtk_box_pack_start (GTK_BOX (hbox4), button1, TRUE, FALSE, 0);
+   gtk_signal_connect (GTK_OBJECT (button1), "clicked", GTK_SIGNAL_FUNC (font_button_cb), NULL);
+@@ -1142,7 +1183,10 @@
+   gtk_widget_show (hbox5);
+   gtk_box_pack_start (GTK_BOX (vbox5), hbox5, FALSE, FALSE, 5);
+ 
+-  button1 = gtk_label_new ("  "STR_COLOR_FG"  ");
++  { char x[strlen(STR_COLOR_FG)+5];
++    sprintf(x,"%s%s%s", "  ", STR_COLOR_FG, "  ");
++    button1 = gtk_label_new (x);
++  }
+   gtk_widget_show (button1);
+   gtk_widget_set_usize (button1, -2, 20);
+   gtk_box_pack_start (GTK_BOX (hbox5), button1, FALSE, FALSE, 0);
+@@ -1162,7 +1206,10 @@
+   gtk_widget_show (hbox5);
+   gtk_box_pack_start (GTK_BOX (vbox5), hbox5, FALSE, FALSE, 5);
+ 
+-  button1 = gtk_label_new ("  "STR_COLOR_BG"  ");
++  { char x[strlen(STR_COLOR_BG)+5];
++    sprintf(x,"%s%s%s", "  ", STR_COLOR_BG, "  ");
++    button1 = gtk_label_new (x);
++  }
+   gtk_widget_show (button1);
+   gtk_box_pack_start (GTK_BOX (hbox5), button1, FALSE, FALSE, 0);
+   gtk_widget_set_usize (button1, -2, 20);
+@@ -1237,7 +1284,10 @@
+   gtk_box_pack_start (GTK_BOX (hbox4), label5, TRUE, FALSE, 0);
+ 
+   // -- `released under` label
+-  label5 = gtk_label_new ("\n\n"STR_UNDER_GPL);
++  { char x[strlen(STR_COLOR_FG)+3];
++    sprintf(x,"%s%s", "\n\n", STR_COLOR_FG);
++    label5 = gtk_label_new (x);
++  }
+   gtk_widget_ref (label5);
+   gtk_object_set_data_full (GTK_OBJECT (options_window), "label5", label5,
+                             (GtkDestroyNotify) gtk_widget_unref);
+diff -u -N -r rdj-0.3.2/src/main.cc rdj-0.3.2.patch/src/main.cc
+--- rdj-0.3.2/src/main.cc	Tue Aug 21 06:34:32 2001
++++ rdj-0.3.2.patch/src/main.cc	Tue Apr  2 18:29:08 2002
+@@ -121,6 +121,12 @@
+   char station[MAX_STAT_INPUT+1], freq[MAX_FREQ_INPUT+1];
+   int ret;
+ 
++#ifdef LANG_USE_GETTEXT
++  setlocale(LC_ALL, "" );
++  bindtextdomain("rdj", NULL );
++  textdomain("rdj");
++#endif
++  
+   signal (SIGHUP,  SIG_IGN);
+   signal (SIGINT,  handle_sig);
+   signal (SIGQUIT, handle_sig);
