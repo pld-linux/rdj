@@ -5,8 +5,6 @@ Version:	0.3.0
 Release:	1
 License:	GPL
 Group:		X11/Applications/Multimedia
-Group(de):	X11/Applikationen/Multimedia
-Group(pl):	X11/Aplikacje/Multimedia
 Source0:	http://mimms.sourceforge.net/rdj/%{name}-%{version}.tgz
 Patch0:		%{name}-X11R6_path.patch
 URL:		http://mimms.sourceforge.net/
