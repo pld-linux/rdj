@@ -42,7 +42,7 @@ CC="%{__cc}"; export CC
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_datadir}/%{name}/xpm,%{_bindir},%{_mandir}/man1} \
 		$RPM_BUILD_ROOT{%{_applnkdir}/Multimedia,%{_pixmapsdir}}
-		
+
 install src/{rdj,rdj_scan,rdj_term,fscan} $RPM_BUILD_ROOT%{_bindir}
 install rdj.desktop $RPM_BUILD_ROOT%{_applnkdir}/Multimedia
 install rdj_icon.xpm $RPM_BUILD_ROOT%{_pixmapsdir}
