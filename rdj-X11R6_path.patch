@@ -1,0 +1,22 @@
+diff -Nru rdj-0.3.0.orig/include/defines.h rdj-0.3.0/include/defines.h
+--- rdj-0.3.0.orig/include/defines.h	Mon Sep  3 18:17:15 2001
++++ rdj-0.3.0/include/defines.h	Mon Sep  3 18:18:36 2001
+@@ -25,7 +25,7 @@
+ // include the language support
+ #include "lang.h"
+ 
+-#define PPREFIX    "/usr/share/rdj"
++#define PPREFIX    "/usr/X11R6/share/rdj"
+ #define PATH_PREFS PPREFIX"/xpm/prefs.xpm"
+ #define PATH_MUTE  PPREFIX"/xpm/mute_off.xpm"
+ #define PATH_MIXER PPREFIX"/xpm/mixer.xpm"
+diff -Nru rdj-0.3.0.orig/rdj.desktop rdj-0.3.0/rdj.desktop
+--- rdj-0.3.0.orig/rdj.desktop	Mon Sep  3 18:17:15 2001
++++ rdj-0.3.0/rdj.desktop	Mon Sep  3 18:28:31 2001
+@@ -3,5 +3,5 @@
+ Comment=gtk+ radio device controller
+ Exec=rdj
+ Terminal=0
+-Icon=/usr/share/rdj/rdj_icon.xpm
++Icon=/usr/X11R6/share/pixmaps/rdj_icon.xpm
+ Type=Application
