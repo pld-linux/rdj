@@ -1,9 +1,9 @@
 Summary:	gtk+ radio program for Video4Linux users
-Summary(pl):	aplikacja radiowa pod gtk+ (Video4Linux)
 Summary(cs):	gtk+ radio program pro zaЬМzenМ podporujМcМ Video4Linux rozhranМ
 Summary(de):	gtk+ Radio-Tuner fЭr Video4Linux-Benutzer
-Summary(nl):	gtk+ radioprogramma voor gebruikers van Video4Linux
 Summary(it):	gtk+ programma radio per utenti di Video4Linux
+Summary(nl):	gtk+ radioprogramma voor gebruikers van Video4Linux
+Summary(pl):	aplikacja radiowa pod gtk+ (Video4Linux)
 Summary(ru):	gtk+ программа для работы с радио-тюнером с использованием интерфейса Video4Linux
 Name:		rdj
 Version:	0.3.2
@@ -17,9 +17,9 @@ Source1:	%{name}-icons-png.tgz
 Patch0:		%{name}-gettext-and-automake-support.patch
 BuildRequires:	automake
 BuildRequires:	autoconf
-BuildRequires:	gtk+-devel
+BuildRequires:	gettext-devel
 BuildRequires:	gnome-libs-devel
-
+BuildRequires:	gtk+-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define         _prefix         /usr/X11R6
@@ -30,12 +30,6 @@ rdj is a gtk+ radio interface for bttv video devices with radio
 tuners. Scanning, station editing, using devices radio0-3, setting a
 default station, and having unlimited stations are fully supported.
 Also, you can start your favorite television app and mixer from it.
-
-%description -l pl
-rdj jest interfejsem radiowym pod bttv u©ywaj╠cym gtk+. Program
-umo©liwia skanowanie, edycjЙ listy stacji, ustawianie stacji
-domy╤lnej, u©ywanie urz╠dzeЯ radio0-3. Korzystaj╠c z rdj mo©na rСwnie©
-uruchomiФ swoj╠ ulubion╠ aplikacjЙ do ogl╠dania tv czy audio mikser.
 
 %description -l cs
 rdj je gtk+ rozhranМ pro bttv zaЬМzenМ s radiovЩm tunerem. Pou╬МvА
@@ -58,6 +52,12 @@ radio0-3, een default station instellen, en het instellen van een
 onbegrensd aantal stations wordt volledig ondersteund. U kunt ook uw
 favoriete televisieprogramma of mixer starten vanuit rdj.
 
+%description -l pl
+rdj jest interfejsem radiowym pod bttv u©ywaj╠cym gtk+. Program
+umo©liwia skanowanie, edycjЙ listy stacji, ustawianie stacji
+domy╤lnej, u©ywanie urz╠dzeЯ radio0-3. Korzystaj╠c z rdj mo©na rСwnie©
+uruchomiФ swoj╠ ulubion╠ aplikacjЙ do ogl╠dania tv czy audio mikser.
+
 %description -l ru
 rdj --- это gtk+ программа для устройств на чипах bttv, оснащенных
 радио-тюнером. Особенности: сканирование диапазона, неограниченный
@@ -66,17 +66,15 @@ rdj --- это gtk+ программа для устройств на чипах bttv, оснащенных
 можете запускать Вашу любимую программу для просмотра ТВ и микшер из
 rdj.
 
-
 %prep
 %setup -q
 %patch0 -p1
 
-
 %build
 %{__gettextize}
-aclocal
+%{__aclocal}
 %{__autoconf}
-automake -a -c
+%{__automake}
 
 %configure
 %{__make}
@@ -92,21 +90,15 @@ install -d $RPM_BUILD_ROOT%{_pixmapsdir}
 tar zxvf %{SOURCE1}
 install *.png $RPM_BUILD_ROOT%{_pixmapsdir}
 
-gzip -9nf README ChangeLog COPYING KNOWN_BUGS example.rdj
-
 %find_lang %{name} --with-gnome --all-name
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-
 %files -f %{name}.lang
 %defattr(644,root,root,755)
-%doc *.gz
-
+%doc README ChangeLog COPYING KNOWN_BUGS example.rdj
 %attr(755,root,root) %{_bindir}/*
-
 %{_datadir}/%{name}
 %{_mandir}/man1/*
 %{_pixmapsdir}/*
