@@ -73,7 +73,7 @@ rdj.
 
 
 %build
-gettextize --copy --force
+%{__gettextize}
 aclocal
 %{__autoconf}
 automake -a -c
