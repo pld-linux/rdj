@@ -11,19 +11,18 @@ Release:	1
 Vendor:		David Mimms, Jr. <tha_d@hotmail.com>
 License:	GPL
 Group:		X11/Applications/Multimedia
-URL:		http://mimms.sourceforge.net/
-Source0:	http://mimms.sourceforge.net/rdj/%{name}-%{version}.tgz
+Source0:	http://mimms.sourceforge.net/files/%{name}-%{version}.tgz
 # Source0-md5:	51d5b3d37d4ecd4db563d501f0774ca7
 Source1:	%{name}-icons-png.tgz
 # Source1-md5:	87f629f20233f5bf610ab4db1672cadc
 Patch0:		%{name}-gettext-and-automake-support.patch
+URL:		http://mimms.sourceforge.net/rdj.html
 BuildRequires:	automake
 BuildRequires:	autoconf
 BuildRequires:	gettext-devel
 BuildRequires:	gnome-libs-devel
 BuildRequires:	gtk+-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
 
 %description
 rdj is a gtk+ radio interface for bttv video devices with radio
@@ -81,11 +80,11 @@ rdj.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%{__make} install \
-        DESTDIR=$RPM_BUILD_ROOT \
-	desktopdir=%{_applnkdir}/Multimedia
-
 install -d $RPM_BUILD_ROOT%{_pixmapsdir}
+
+%{__make} install \
+	DESTDIR=$RPM_BUILD_ROOT \
+	desktopdir=%{_applnkdir}/Multimedia
 
 tar zxvf %{SOURCE1}
 install *.png $RPM_BUILD_ROOT%{_pixmapsdir}
@@ -97,7 +96,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f %{name}.lang
 %defattr(644,root,root,755)
-%doc README ChangeLog COPYING KNOWN_BUGS example.rdj
+%doc ChangeLog KNOWN_BUGS README example.rdj
 %attr(755,root,root) %{_bindir}/*
 %{_datadir}/%{name}
 %{_mandir}/man1/*
