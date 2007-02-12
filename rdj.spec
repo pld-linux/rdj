@@ -1,10 +1,10 @@
 Summary:	GTK+ radio program for Video4Linux users
-Summary(cs.UTF-8):   GTK+ radio program pro zařízení podporující Video4Linux rozhraní
-Summary(de.UTF-8):   GTK+ Radio-Tuner für Video4Linux-Benutzer
-Summary(it.UTF-8):   GTK+ programma radio per utenti di Video4Linux
-Summary(nl.UTF-8):   GTK+ radioprogramma voor gebruikers van Video4Linux
-Summary(pl.UTF-8):   Aplikacja radiowa pod GTK+ (Video4Linux)
-Summary(ru.UTF-8):   GTK+ программа для работы с радио-тюнером с использованием интерфейса Video4Linux
+Summary(cs.UTF-8):	GTK+ radio program pro zařízení podporující Video4Linux rozhraní
+Summary(de.UTF-8):	GTK+ Radio-Tuner für Video4Linux-Benutzer
+Summary(it.UTF-8):	GTK+ programma radio per utenti di Video4Linux
+Summary(nl.UTF-8):	GTK+ radioprogramma voor gebruikers van Video4Linux
+Summary(pl.UTF-8):	Aplikacja radiowa pod GTK+ (Video4Linux)
+Summary(ru.UTF-8):	GTK+ программа для работы с радио-тюнером с использованием интерфейса Video4Linux
 Name:		rdj
 Version:	0.3.2
 Release:	1
