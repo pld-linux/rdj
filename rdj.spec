@@ -1,10 +1,10 @@
 Summary:	GTK+ radio program for Video4Linux users
-Summary(cs):	GTK+ radio program pro zaЬМzenМ podporujМcМ Video4Linux rozhranМ
-Summary(de):	GTK+ Radio-Tuner fЭr Video4Linux-Benutzer
-Summary(it):	GTK+ programma radio per utenti di Video4Linux
-Summary(nl):	GTK+ radioprogramma voor gebruikers van Video4Linux
-Summary(pl):	Aplikacja radiowa pod GTK+ (Video4Linux)
-Summary(ru):	GTK+ программа для работы с радио-тюнером с использованием интерфейса Video4Linux
+Summary(cs.UTF-8):   GTK+ radio program pro zaе≥ц╜zenц╜ podporujц╜cц╜ Video4Linux rozhranц╜
+Summary(de.UTF-8):   GTK+ Radio-Tuner fц╪r Video4Linux-Benutzer
+Summary(it.UTF-8):   GTK+ programma radio per utenti di Video4Linux
+Summary(nl.UTF-8):   GTK+ radioprogramma voor gebruikers van Video4Linux
+Summary(pl.UTF-8):   Aplikacja radiowa pod GTK+ (Video4Linux)
+Summary(ru.UTF-8):   GTK+ п©я─п╬пЁя─п╟п╪п╪п╟ п╢п╩я▐ я─п╟п╠п╬я┌я▀ я│ я─п╟п╢п╦п╬-я┌я▌п╫п╣я─п╬п╪ я│ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣п╪ п╦п╫я┌п╣я─я└п╣п╧я│п╟ Video4Linux
 Name:		rdj
 Version:	0.3.2
 Release:	1
@@ -30,39 +30,39 @@ tuners. Scanning, station editing, using devices radio0-3, setting a
 default station, and having unlimited stations are fully supported.
 Also, you can start your favorite television app and mixer from it.
 
-%description -l cs
-rdj je GTK+ rozhranМ pro bttv zaЬМzenМ s radiovЩm tunerem. Pou╬МvА
-zaЬМzenМ radio0-3. Umo╬Рuje hledat a upravovat seznam dostupnЩch
-stanic, nastavenМ defaultnМ stanice. Umo╬Рujue takИ spou╧tЛnМ
-oblМbenИho tv programu a mixeru.
+%description -l cs.UTF-8
+rdj je GTK+ rozhranц╜ pro bttv zaе≥ц╜zenц╜ s radiovц╫m tunerem. Pouе╬ц╜vц║
+zaе≥ц╜zenц╜ radio0-3. Umoе╬е┬uje hledat a upravovat seznam dostupnц╫ch
+stanic, nastavenц╜ defaultnц╜ stanice. Umoе╬е┬ujue takц╘ spouе║tд⌡nц╜
+oblц╜benц╘ho tv programu a mixeru.
 
-%description -l de
-rdj ist ein GTK+ Radio-Tuner fЭr von BTTV unterstЭtzte
+%description -l de.UTF-8
+rdj ist ein GTK+ Radio-Tuner fц╪r von BTTV unterstц╪tzte
 Radio/TV-Karten. Sendersuchlauf, Editieren von Sendern, Verwendung der
-GerДte radio0-3, Angabe eines Standardsenders und eine unbegrenzte
-Anzahl von voreingestellten Sendern werden voll unterstЭtzt. Sie
-kЖnnen auъerdem eine TV-Software sowie einen Audiomixer Ihrer Wahl
+Gerц╓te radio0-3, Angabe eines Standardsenders und eine unbegrenzte
+Anzahl von voreingestellten Sendern werden voll unterstц╪tzt. Sie
+kц╤nnen auц÷erdem eine TV-Software sowie einen Audiomixer Ihrer Wahl
 starten.
 
-%description -l nl
+%description -l nl.UTF-8
 rdj is een GTK+ radio-interface voor bttv video apparaten met
 radiotuners. Scannen, stations bewerken, gebruik van de apparaten
 radio0-3, een default station instellen, en het instellen van een
 onbegrensd aantal stations wordt volledig ondersteund. U kunt ook uw
 favoriete televisieprogramma of mixer starten vanuit rdj.
 
-%description -l pl
-rdj jest interfejsem radiowym pod bttv u©ywaj╠cym GTK+. Program
-umo©liwia skanowanie, edycjЙ listy stacji, ustawianie stacji
-domy╤lnej, u©ywanie urz╠dzeЯ radio0-3. Korzystaj╠c z rdj mo©na rСwnie©
-uruchomiФ swoj╠ ulubion╠ aplikacjЙ do ogl╠dania tv czy audio mikser.
+%description -l pl.UTF-8
+rdj jest interfejsem radiowym pod bttv uе╪ywajд┘cym GTK+. Program
+umoе╪liwia skanowanie, edycjд≥ listy stacji, ustawianie stacji
+domyе⌡lnej, uе╪ywanie urzд┘dzeе└ radio0-3. Korzystajд┘c z rdj moе╪na rцЁwnieе╪
+uruchomiд┤ swojд┘ ulubionд┘ aplikacjд≥ do oglд┘dania tv czy audio mikser.
 
-%description -l ru
-rdj --- это GTK+ программа для устройств на чипах bttv, оснащенных
-радио-тюнером. Особенности: сканирование диапазона, неограниченный
-редактируемый список станций, использование нескольких устройств
-(radio0-3), задание станции, прослушиваемой по умолчанию. Также Вы
-можете запускать Вашу любимую программу для просмотра ТВ и микшер из
+%description -l ru.UTF-8
+rdj --- я█я┌п╬ GTK+ п©я─п╬пЁя─п╟п╪п╪п╟ п╢п╩я▐ я┐я│я┌я─п╬п╧я│я┌п╡ п╫п╟ я┤п╦п©п╟я┘ bttv, п╬я│п╫п╟я┴п╣п╫п╫я▀я┘
+я─п╟п╢п╦п╬-я┌я▌п╫п╣я─п╬п╪. п·я│п╬п╠п╣п╫п╫п╬я│я┌п╦: я│п╨п╟п╫п╦я─п╬п╡п╟п╫п╦п╣ п╢п╦п╟п©п╟п╥п╬п╫п╟, п╫п╣п╬пЁя─п╟п╫п╦я┤п╣п╫п╫я▀п╧
+я─п╣п╢п╟п╨я┌п╦я─я┐п╣п╪я▀п╧ я│п©п╦я│п╬п╨ я│я┌п╟п╫я├п╦п╧, п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ п╫п╣я│п╨п╬п╩я▄п╨п╦я┘ я┐я│я┌я─п╬п╧я│я┌п╡
+(radio0-3), п╥п╟п╢п╟п╫п╦п╣ я│я┌п╟п╫я├п╦п╦, п©я─п╬я│п╩я┐я┬п╦п╡п╟п╣п╪п╬п╧ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌. п╒п╟п╨п╤п╣ п▓я▀
+п╪п╬п╤п╣я┌п╣ п╥п╟п©я┐я│п╨п╟я┌я▄ п▓п╟я┬я┐ п╩я▌п╠п╦п╪я┐я▌ п©я─п╬пЁя─п╟п╪п╪я┐ п╢п╩я▐ п©я─п╬я│п╪п╬я┌я─п╟ п╒п▓ п╦ п╪п╦п╨я┬п╣я─ п╦п╥
 rdj.
 
 %prep
