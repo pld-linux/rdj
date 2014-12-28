@@ -19,7 +19,7 @@ Patch0:		%{name}-gettext-and-automake-support.patch
 URL:		http://mimms.sourceforge.net/rdj.html
 BuildRequires:	automake
 BuildRequires:	autoconf
-BuildRequires:	gettext-devel
+BuildRequires:	gettext-tools
 BuildRequires:	gnome-libs-devel
 BuildRequires:	gtk+-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
